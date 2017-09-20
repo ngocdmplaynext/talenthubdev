@@ -1,0 +1,137 @@
+ドメインID: <input id='domainId' type='text' value='talenthubdev'/></br>
+問合せ元情報: <input id='location' type='text' value=''/></br>
+<p>Theme<br>
+<input type="radio" name="theme" value="default" checked="checked"> Default
+<input type="radio" name="theme" value="cyan"> Cyan
+<input type="radio" name="theme" value="lime"> Lime
+<input type="radio" name="theme" value="black"> Black
+<input type="radio" name="theme" value="red"> Red
+<input type="radio" name="theme" value="orange"> Orange
+<input type="radio" name="theme" value="white"> White
+</p>
+<p>showNameInput<br>
+<input type="radio" name="showNameInput" value="0" checked="checked"> false
+<input type="radio" name="showNameInput" value="1"> true
+</p>
+<p>skipDomainStatusCheck<br>
+<input type="radio" name="skipDomainStatusCheck" value="0" checked="checked"> false
+<input type="radio" name="skipDomainStatusCheck" value="1"> true
+
+<p>listenVisiblityChange<br>
+<input type="radio" name="listenVisiblityChange" value="0" checked="checked"> false
+<input type="radio" name="listenVisiblityChange" value="1"> true
+</p>
+
+<p>showAvatar<br>
+<input type="radio" name="showAvatar" value="0" checked="checked"> false
+<input type="radio" name="showAvatar" value="1"> true
+</p>
+
+</br>
+<button id='btn1' type='button'>起動</button>
+<button id='btn2' type='button'>Popup起動</button>
+</br>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://mbwac.dev-mobilus.chat/assets/script/embed/mobi-agent-client-frame-loader.min.js"></script>
+<script type="text/javascript" >
+
+
+  $(function(){
+
+    var query = {};
+    location.search.replace("?","").split("&").forEach(function(keyVal){var tokens = keyVal.split("="); query[tokens[0]]=tokens[1]});
+    document.getElementById('domainId').value = query.domainId || 'talenthubdev';
+
+    Object.keys(MobiAgentClient.Events).forEach(function(key){
+      MobiAgentClient.on(key, function(data){
+        console.log(key, data);
+      });
+    });
+
+    $('#btn1').on('click', function(){
+      var domainId = document.getElementById('domainId').value;
+      console.log(location.origin, domainId);
+      MobiAgentClient.init(
+        'https://mbwac.dev-mobilus.chat',
+        domainId,
+        {
+          allowFileUpload: true,
+          location: document.getElementById('location').value,
+          theme: $('input[name=theme]:checked').val(),
+          showNameInput: $('input[name=showNameInput]:checked').val() === '1',
+          skipDomainStatusCheck: $('input[name=skipDomainStatusCheck]:checked').val() === '1',
+          listenVisiblityChange: $('input[name=listenVisiblityChange]:checked').val() === '1',
+          showAvatar: $('input[name=showAvatar]:checked').val() === '1',
+          i18n: {
+            cc_label_name: 'Email',
+            cc_welcome_message: "ご利用ありがとうございます。<br>"
+                                + "options.i18n.cc_welcome_messageを指定すると、このように表示されます（デフォルトでは空欄のため何も表示されません。）<br>"
+                                + "このメッセージはルームが開始されると（ゲストが何かを発言すると）自動で消えます。<br>"
+                                + "classnnameにはmbaGuestFrame_content_timeline_welcomeMessageが指定されています。<br>"
+                                + "改行を含める場合は&lt;br&gt;を利用してください。<br>"
+                                + "その他のhtmlタグはつかえません。<br>"
+                                + "例えば<strong>ストロング</strong>と書いてもだめです。<br>"
+                                + "また、&lt;strong&gt;ストロング&lt;/strong&gt;と書いてもだめです。<br>"
+                                + "バックスラッシュによるでのエスケープも利用できません。<br>"
+                                + "リンクっぽい文字列はリンクになります。<br>"
+                                + "詳しくは。 -> http://markdown-it.github.io/linkify-it を参照して下さい♥<br>"
+                                + "機種依存文字 -> 😁<br>"
+
+          }
+        },
+        function(f){
+          console.log(f);
+          $('#btn1').hide();
+          $('#btn2').hide();
+          $("#konnect-container")
+          .append("<div id='draggableHandle' style='pointer-events: auto; cursor: move; height: 20px; width: 20px; background: rgba(34, 34, 34, 0.5); position: absolute; bottom: 1px; left: -19px;'></div>")
+          .append("<div id='frameOverlay' style='height: 100%; width: 100%; background: rgba(34, 34, 34, 0.5); position: absolute; top: 0; left: 0; display: none;'></div>")
+          .draggable({
+            handle: $("#draggableHandle"),
+            start: function() {
+              $('#frameOverlay').fadeIn('fast');
+            },
+            stop: function() {
+              $('#frameOverlay').fadeOut('fast');
+            }
+          });
+        }
+      );
+    });
+    $('#btn2').on('click', function(){
+      $('#btn1').hide();
+      $('#btn2').hide();
+      var domainId = document.getElementById('domainId').value;
+      MobiAgentClient.openInPopup(
+            'https://mbwac.dev-mobilus.chat',
+            domainId,
+        {
+          allowFileUpload: true,
+          location: document.getElementById('location').value,
+          theme: $('input[name=theme]:checked').val(),
+          showNameInput: $('input[name=showNameInput]:checked').val() === '1',
+          skipDomainStatusCheck:  $('input[name=skipDomainStatusCheck]:checked').val() === '1',
+          listenVisiblityChange: $('input[name=listenVisiblityChange]:checked').val() === '1',
+          showAvatar: $('input[name=showAvatar]:checked').val() === '1',
+          i18n: {
+            cc_label_name: 'Email',
+            cc_welcome_message: "ご利用ありがとうございます。<br>"
+                                + "options.i18n.cc_welcome_messageを指定すると、このように表示されます（デフォルトでは空欄のため何も表示されません。）<br>"
+                                + "このメッセージはルームが開始されると（ゲストが何かを発言すると）自動で消えます。<br>"
+                                + "classnnameにはmbaGuestFrame_content_timeline_welcomeMessageが指定されています。<br>"
+                                + "改行を含める場合は&lt;br&gt;を利用してください。<br>"
+                                + "その他のhtmlタグはつかえません。<br>"
+                                + "例えば<strong>ストロング</strong>と書いてもだめです。<br>"
+                                + "また、&lt;strong&gt;ストロング&lt;/strong&gt;と書いてもだめです。<br>"
+                                + "バックスラッシュによるでのエスケープも利用できません。<br>"
+                                + "リンクっぽい文字列はリンクになります。<br>"
+                                + "詳しくは。 -> http://markdown-it.github.io/linkify-it を参照して下さい♥<br>"
+                                + "機種依存文字 -> 😁<br>"
+
+          }
+        }
+      );
+    });
+  });
+</script>
